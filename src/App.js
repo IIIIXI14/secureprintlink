@@ -62,6 +62,15 @@ function App() {
             />
 
             <Route
+              path="/submit-job"
+              element={
+                <RequireAuth>
+                  <PrintJobSubmission />
+                </RequireAuth>
+              }
+            />
+
+            <Route
               path="/print-job-queue"
               element={
                 <RequireAuth>
