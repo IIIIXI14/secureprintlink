@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import styled from 'styled-components';
 
 // Components
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import PrintJobSubmission from './pages/PrintJobSubmission';
 import PrintJobQueue from './pages/PrintJobQueue';
@@ -18,27 +15,8 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
 // Context
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { PrintJobProvider } from './context/PrintJobContext';
-
-const AppContainer = styled.div`
-  display: flex;
-  height: 100vh;
-  background-color: #f5f5f5;
-`;
-
-const MainContent = styled.main`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
-const ContentArea = styled.div`
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-`;
 
 // Root App Component
 function App() {
