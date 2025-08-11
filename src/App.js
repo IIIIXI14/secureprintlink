@@ -13,6 +13,7 @@ import Authentication from './pages/Authentication';
 import PrintRelease from './pages/PrintRelease';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Layout from './components/Layout';
 
 // Context
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -67,88 +68,96 @@ function App() {
                   </RedirectIfAuth>
                 }
               />
-
               <Route
                 path="/dashboard"
                 element={
                   <RequireAuth>
-                    <Dashboard />
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
               <Route
                 path="/print-job-submission"
                 element={
                   <RequireAuth>
-                    <PrintJobSubmission />
+                    <Layout>
+                      <PrintJobSubmission />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
               <Route
                 path="/submit-job"
                 element={
                   <RequireAuth>
-                    <PrintJobSubmission />
+                    <Layout>
+                      <PrintJobSubmission />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
               <Route
                 path="/print-job-queue"
                 element={
                   <RequireAuth>
-                    <PrintJobQueue />
+                    <Layout>
+                      <PrintJobQueue />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
               <Route
                 path="/printer-management"
                 element={
                   <RequireAuth>
-                    <PrinterManagement />
+                    <Layout>
+                      <PrinterManagement />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
-              <Route
-                path="/print-release"
-                element={
-                  <RequireAuth>
-                    <PrintRelease />
-                  </RequireAuth>
-                }
-              />
-
-              <Route
-                path="/reports"
-                element={
-                  <RequireAuth>
-                    <Reports />
-                  </RequireAuth>
-                }
-              />
-
               <Route
                 path="/user-management"
                 element={
                   <RequireAuth>
-                    <UserManagement />
+                    <Layout>
+                      <UserManagement />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
+              <Route
+                path="/print-release"
+                element={
+                  <RequireAuth>
+                    <Layout>
+                      <PrintRelease />
+                    </Layout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <RequireAuth>
+                    <Layout>
+                      <Reports />
+                    </Layout>
+                  </RequireAuth>
+                }
+              />
               <Route
                 path="/settings"
                 element={
                   <RequireAuth>
-                    <Settings />
+                    <Layout>
+                      <Settings />
+                    </Layout>
                   </RequireAuth>
                 }
               />
-
               <Route path="/" element={<Navigate to="/login" replace />} />
             </Routes>
           </Router>
