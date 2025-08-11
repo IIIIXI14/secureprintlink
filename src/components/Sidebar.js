@@ -191,17 +191,17 @@ const Sidebar = ({ isOpen, onToggle }) => {
     {
       title: 'Main',
       items: [
-        { path: '/', icon: FaHome, text: 'Dashboard' },
+        { path: '/dashboard', icon: FaHome, text: 'Dashboard' },
         { path: '/submit-job', icon: FaPrint, text: 'Submit Print Job' },
-        { path: '/job-queue', icon: FaList, text: 'Print Job Queue' },
+        { path: '/print-job-queue', icon: FaList, text: 'Print Job Queue' },
       ]
     },
     {
       title: 'Management',
       items: [
-        { path: '/printers', icon: FaServer, text: 'Printer Management' },
-        { path: '/users', icon: FaUsers, text: 'User Management' },
-        { path: '/release', icon: FaQrcode, text: 'Print Release' },
+        { path: '/printer-management', icon: FaServer, text: 'Printer Management' },
+        { path: '/user-management', icon: FaUsers, text: 'User Management' },
+        { path: '/print-release', icon: FaQrcode, text: 'Print Release' },
       ]
     },
     {

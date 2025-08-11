@@ -480,7 +480,7 @@ const Dashboard = () => {
                 </div>
               </ActionButton>
 
-              <ActionButton onClick={() => navigate('/release')}>
+              <ActionButton onClick={() => navigate('/print-release')}>
                 <div className="action-icon">
                   <FaCog />
                 </div>
@@ -490,7 +490,7 @@ const Dashboard = () => {
                 </div>
               </ActionButton>
 
-              <ActionButton onClick={() => navigate('/job-queue')}>
+              <ActionButton onClick={() => navigate('/print-job-queue')}>
                 <div className="action-icon">
                   <FaFileAlt />
                 </div>
