@@ -376,7 +376,32 @@ const PrintJobSubmission = () => {
   });
   const [error, setError] = useState(null);
 
-  // Error boundary for this component
+  // Always call hooks at the top!
+  const onDrop = (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      setSelectedFile(file);
+      setJobData(prev => ({
+        ...prev,
+        documentName: file.name
+      }));
+      setCurrentStep(2);
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt'],
+      'image/*': ['.jpg', '.jpeg', '.png', '.gif']
+    },
+    multiple: false
+  });
+
+  // Now do your early returns
   if (error) {
     return (
       <div style={{ color: 'red', padding: 32, textAlign: 'center' }}>
@@ -395,30 +420,6 @@ const PrintJobSubmission = () => {
   }
 
   try {
-    const onDrop = (acceptedFiles) => {
-      const file = acceptedFiles[0];
-      if (file) {
-        setSelectedFile(file);
-        setJobData(prev => ({
-          ...prev,
-          documentName: file.name
-        }));
-        setCurrentStep(2);
-      }
-    };
-
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-      onDrop,
-      accept: {
-        'application/pdf': ['.pdf'],
-        'application/msword': ['.doc'],
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-        'text/plain': ['.txt'],
-        'image/*': ['.jpg', '.jpeg', '.png', '.gif']
-      },
-      multiple: false
-    });
-
     const handleSubmit = async (e) => {
       e.preventDefault();
       
