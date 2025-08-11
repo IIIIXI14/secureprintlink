@@ -383,22 +383,14 @@ const PrintRelease = () => {
   const [linkTargetJobId, setLinkTargetJobId] = useState(null);
 
   useEffect(() => {
-    // Validate link against backend (works cross-device)
-    (async () => {
-      const jobId = params.jobId;
-      const search = new URLSearchParams(location.search);
-      const token = search.get('token');
-      if (!jobId || !token) return;
-      try {
-        const { data } = await api.get(`/api/jobs/${jobId}`, { params: { token } });
-        if (data?.job?.status === 'pending') {
-          setLinkTargetJobId(jobId);
-        }
-      } catch (e) {
-        // invalid token or not found – keep default flow
-      }
-    })();
-  }, [params.jobId, location.search]);
+    // With no backend, validate the token against local state
+    const jobId = params.jobId;
+    const search = new URLSearchParams(location.search);
+    const token = search.get('token');
+    if (!jobId || !token) return;
+    const job = printJobs.find(j => j.id === jobId && j.secureToken === token && j.status === 'pending');
+    if (job) setLinkTargetJobId(jobId);
+  }, [params.jobId, location.search, printJobs]);
 
   const userJobs = authenticatedUser 
     ? printJobs.filter(job => job.userId === authenticatedUser.id && job.status === 'pending')

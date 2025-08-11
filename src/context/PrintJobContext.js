@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import CryptoJS from 'crypto-js';
-import { api } from '../api/client';
 
 const PrintJobContext = createContext();
 
@@ -74,8 +73,16 @@ export const PrintJobProvider = ({ children }) => {
   const submitPrintJob = async (jobData) => {
     setLoading(true);
     try {
-      const form = new FormData();
-      Object.entries({
+      // Simulate backend behavior entirely on the client so the app works on Vercel alone
+      const jobId = String(Date.now());
+      const secureToken = CryptoJS.lib.WordArray.random(16).toString();
+      const releaseLinkBase = typeof window !== 'undefined' && window.location && window.location.origin
+        ? window.location.origin
+        : '';
+      const releaseLink = `${releaseLinkBase}/release/${jobId}?token=${secureToken}`;
+
+      const newJob = {
+        id: jobId,
         userId: jobData.userId,
         userName: jobData.userName,
         documentName: jobData.documentName,
@@ -86,16 +93,13 @@ export const PrintJobProvider = ({ children }) => {
         stapling: jobData.stapling,
         priority: jobData.priority,
         notes: jobData.notes,
-      }).forEach(([k, v]) => form.append(k, v));
-      if (jobData.file) form.append('file', jobData.file);
-
-      const { data } = await api.post('/api/jobs', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      const newJob = {
-        ...jobData,
-        ...data.job,
+        status: 'pending',
+        cost: parseFloat(calculateJobCost(jobData)),
+        submittedAt: new Date().toISOString(),
+        printerId: null,
+        releasedBy: null,
+        secureToken,
+        releaseLink,
         encrypted: true,
       };
 
@@ -103,7 +107,7 @@ export const PrintJobProvider = ({ children }) => {
       return { success: true, job: newJob };
     } catch (err) {
       console.error(err);
-      throw new Error(err?.response?.data?.error || 'Failed to submit print job');
+      throw new Error('Failed to submit print job');
     } finally {
       setLoading(false);
     }
@@ -112,20 +116,24 @@ export const PrintJobProvider = ({ children }) => {
   const releasePrintJob = async (jobId, printerId, userId, token) => {
     setLoading(true);
     try {
-      await api.post(`/api/jobs/${jobId}/release`, { token, printerId, releasedBy: userId });
+      // Validate token locally against stored job
+      const targetJob = printJobs.find(j => j.id === jobId);
+      if (!targetJob || (targetJob.secureToken && targetJob.secureToken !== token)) {
+        throw new Error('Invalid release token');
+      }
+
       setPrintJobs(prev => prev.map(job =>
         job.id === jobId
           ? { ...job, status: 'printing', releasedAt: new Date().toISOString(), printerId, releasedBy: userId }
           : job
       ));
-      // optimistic completion simulation remains
       setTimeout(() => {
         setPrintJobs(prev => prev.map(job => job.id === jobId ? { ...job, status: 'completed', completedAt: new Date().toISOString() } : job));
       }, 3000);
       return { success: true };
     } catch (err) {
       console.error(err);
-      throw new Error(err?.response?.data?.error || 'Failed to release print job');
+      throw new Error(err.message || 'Failed to release print job');
     } finally {
       setLoading(false);
     }
