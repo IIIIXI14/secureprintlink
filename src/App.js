@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,120 +15,108 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
 // Context
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { PrintJobProvider } from './context/PrintJobContext';
 
-// Root App Component
+const RequireAuth = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+const RedirectIfAuth = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
+};
+
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-  };
-
   return (
     <AuthProvider>
       <PrintJobProvider>
         <Router>
-          <div className="App">
-            <Routes>
-              <Route 
-                path="/login" 
-                element={
-                  !isAuthenticated ? (
-                    <Authentication onLogin={handleLogin} />
-                  ) : (
-                    <Navigate to="/dashboard" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  isAuthenticated ? (
-                    <Dashboard onLogout={handleLogout} />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/print-job-submission" 
-                element={
-                  isAuthenticated ? (
-                    <PrintJobSubmission />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/print-job-queue" 
-                element={
-                  isAuthenticated ? (
-                    <PrintJobQueue />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/printer-management" 
-                element={
-                  isAuthenticated ? (
-                    <PrinterManagement />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/print-release" 
-                element={
-                  isAuthenticated ? (
-                    <PrintRelease />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/reports" 
-                element={
-                  isAuthenticated ? (
-                    <Reports />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/user-management" 
-                element={
-                  isAuthenticated ? (
-                    <UserManagement />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/settings" 
-                element={
-                  isAuthenticated ? (
-                    <Settings />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route path="/" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </div>
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <RedirectIfAuth>
+                  <Authentication />
+                </RedirectIfAuth>
+              }
+            />
+
+            <Route
+              path="/dashboard"
+              element={
+                <RequireAuth>
+                  <Dashboard />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/print-job-submission"
+              element={
+                <RequireAuth>
+                  <PrintJobSubmission />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/print-job-queue"
+              element={
+                <RequireAuth>
+                  <PrintJobQueue />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/printer-management"
+              element={
+                <RequireAuth>
+                  <PrinterManagement />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/print-release"
+              element={
+                <RequireAuth>
+                  <PrintRelease />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/reports"
+              element={
+                <RequireAuth>
+                  <Reports />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/user-management"
+              element={
+                <RequireAuth>
+                  <UserManagement />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <RequireAuth>
+                  <Settings />
+                </RequireAuth>
+              }
+            />
+
+            <Route path="/" element={<Navigate to="/login" replace />} />
+          </Routes>
         </Router>
         <ToastContainer />
       </PrintJobProvider>
