@@ -9,14 +9,9 @@ import {
   FaLock, 
   FaEye, 
   FaEyeSlash, 
-  FaSignInAlt,
-  FaUserPlus,
   FaShieldAlt,
   FaPrint,
-  FaQrcode,
-  FaMobileAlt,
-  FaDesktop,
-  FaTabletAlt
+  FaQrcode
 } from 'react-icons/fa';
 
 const AuthContainer = styled.div`

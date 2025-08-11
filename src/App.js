@@ -40,55 +40,6 @@ const ContentArea = styled.div`
   overflow-y: auto;
 `;
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/auth" replace />;
-};
-
-// Main App Component
-const AppContent = () => {
-  const { isAuthenticated } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  if (!isAuthenticated) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/auth" element={<Authentication />} />
-          <Route path="*" element={<Navigate to="/auth" replace />} />
-        </Routes>
-      </Router>
-    );
-  }
-
-  return (
-    <Router>
-      <AppContainer>
-        <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-        <MainContent>
-          <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
-          <ContentArea>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/submit-job" element={<PrintJobSubmission />} />
-              <Route path="/job-queue" element={<PrintJobQueue />} />
-              <Route path="/printers" element={<PrinterManagement />} />
-              <Route path="/users" element={<UserManagement />} />
-              <Route path="/release" element={<PrintRelease />} />
-              <Route path="/release/:jobId" element={<PrintRelease />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </ContentArea>
-        </MainContent>
-      </AppContainer>
-      <ToastContainer position="top-right" autoClose={5000} />
-    </Router>
-  );
-};
-
 // Root App Component
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -201,6 +152,7 @@ function App() {
             </Routes>
           </div>
         </Router>
+        <ToastContainer />
       </PrintJobProvider>
     </AuthProvider>
   );

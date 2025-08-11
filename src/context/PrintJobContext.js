@@ -16,41 +16,41 @@ export const PrintJobProvider = ({ children }) => {
   const [printers, setPrinters] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Mock printers
-  const mockPrinters = [
-    {
-      id: 1,
-      name: 'Main Office Printer',
-      location: 'Main Office - Floor 1',
-      model: 'HP LaserJet Pro M404n',
-      status: 'online',
-      ip: '192.168.1.100',
-      capabilities: ['color', 'duplex', 'stapling'],
-      department: 'All'
-    },
-    {
-      id: 2,
-      name: 'Sales Department Printer',
-      location: 'Sales Office - Floor 2',
-      model: 'Canon imageRUNNER ADVANCE C3530',
-      status: 'online',
-      ip: '192.168.1.101',
-      capabilities: ['color', 'duplex', 'scanning'],
-      department: 'Sales'
-    },
-    {
-      id: 3,
-      name: 'Marketing Printer',
-      location: 'Marketing Office - Floor 3',
-      model: 'Xerox WorkCentre 6515',
-      status: 'offline',
-      ip: '192.168.1.102',
-      capabilities: ['color', 'duplex', 'scanning', 'fax'],
-      department: 'Marketing'
-    }
-  ];
-
   useEffect(() => {
+    // Mock printers for demonstration
+    const mockPrinters = [
+      {
+        id: 1,
+        name: 'Main Office Printer',
+        location: 'Main Office - Floor 1',
+        model: 'HP LaserJet Pro M404n',
+        status: 'online',
+        ip: '192.168.1.100',
+        capabilities: ['color', 'duplex', 'stapling'],
+        department: 'All'
+      },
+      {
+        id: 2,
+        name: 'Sales Department Printer',
+        location: 'Sales Office - Floor 2',
+        model: 'Canon imageRUNNER ADVANCE C3530',
+        status: 'online',
+        ip: '192.168.1.101',
+        capabilities: ['color', 'duplex', 'scanning'],
+        department: 'Sales'
+      },
+      {
+        id: 3,
+        name: 'Marketing Printer',
+        location: 'Marketing Office - Floor 3',
+        model: 'Xerox WorkCentre 6515',
+        status: 'offline',
+        ip: '192.168.1.102',
+        capabilities: ['color', 'duplex', 'scanning', 'fax'],
+        department: 'Marketing'
+      }
+    ];
+
     // Load mock data
     setPrinters(mockPrinters);
     
@@ -63,7 +63,7 @@ export const PrintJobProvider = ({ children }) => {
         console.error('Error loading stored print jobs:', error);
       }
     }
-  }, [mockPrinters]);
+  }, []);
 
   // Save print jobs to localStorage whenever they change
   useEffect(() => {

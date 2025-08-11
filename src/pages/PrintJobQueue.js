@@ -11,7 +11,6 @@ import {
   FaCheckCircle,
   FaExclamationTriangle,
   FaClock,
-  FaUser,
   FaFileAlt,
   FaSearch,
   FaSort,

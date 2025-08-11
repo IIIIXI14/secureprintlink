@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';

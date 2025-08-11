@@ -5,11 +5,7 @@ import {
   FaChartBar, 
   FaPrint, 
   FaUsers, 
-  FaDollarSign,
-  FaCalendarAlt,
-  FaClock,
-  FaCheckCircle,
-  FaExclamationTriangle
+  FaCalendarAlt
 } from 'react-icons/fa';
 
 const ReportsContainer = styled.div`

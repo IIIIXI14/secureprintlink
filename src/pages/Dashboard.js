@@ -7,8 +7,6 @@ import {
   FaPrint, 
   FaChartBar, 
   FaCog, 
-  FaSignOutAlt,
-  FaUser,
   FaServer,
   FaFileAlt,
   FaClock,

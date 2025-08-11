@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../context/AuthContext';
 import { 
   FaUser, 
   FaEdit, 
   FaTrash, 
-  FaCog,
-  FaShieldAlt,
-  FaEnvelope,
-  FaBuilding,
-  FaIdCard
+  FaShieldAlt
 } from 'react-icons/fa';
 
 const ManagementContainer = styled.div`
