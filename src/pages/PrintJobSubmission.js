@@ -374,313 +374,337 @@ const PrintJobSubmission = () => {
     printerId: '',
     notes: ''
   });
+  const [error, setError] = useState(null);
 
-  const onDrop = (acceptedFiles) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      setSelectedFile(file);
-      setJobData(prev => ({
-        ...prev,
-        documentName: file.name
-      }));
-      setCurrentStep(2);
-    }
-  };
+  // Error boundary for this component
+  if (error) {
+    return (
+      <div style={{ color: 'red', padding: 32, textAlign: 'center' }}>
+        <h2>Something went wrong.</h2>
+        <pre>{error.toString()}</pre>
+      </div>
+    );
+  }
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'text/plain': ['.txt'],
-      'image/*': ['.jpg', '.jpeg', '.png', '.gif']
-    },
-    multiple: false
-  });
+  if (!currentUser) {
+    return (
+      <div style={{ color: 'red', padding: 32, textAlign: 'center' }}>
+        <h2>You must be logged in to submit a print job.</h2>
+      </div>
+    );
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!selectedFile) {
-      toast.error('Please select a file to print');
-      return;
-    }
+  try {
+    const onDrop = (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        setSelectedFile(file);
+        setJobData(prev => ({
+          ...prev,
+          documentName: file.name
+        }));
+        setCurrentStep(2);
+      }
+    };
 
-    try {
-      const jobPayload = {
-        ...jobData,
-        userId: currentUser.id,
-        userName: currentUser.name,
-        file: selectedFile,
-        fileSize: selectedFile.size,
-        fileType: selectedFile.type
-      };
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+      onDrop,
+      accept: {
+        'application/pdf': ['.pdf'],
+        'application/msword': ['.doc'],
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+        'text/plain': ['.txt'],
+        'image/*': ['.jpg', '.jpeg', '.png', '.gif']
+      },
+      multiple: false
+    });
 
-      const result = await submitPrintJob(jobPayload);
-      setLastSubmittedJob(result.job);
-      toast.success('Print job submitted successfully!');
-      setCurrentStep(3);
-    } catch (error) {
-      toast.error(error.message || 'Failed to submit print job');
-    }
-  };
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      
+      if (!selectedFile) {
+        toast.error('Please select a file to print');
+        return;
+      }
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    setJobData(prev => ({ ...prev, documentName: '' }));
-    setCurrentStep(1);
-  };
+      try {
+        const jobPayload = {
+          ...jobData,
+          userId: currentUser.id,
+          userName: currentUser.name,
+          file: selectedFile,
+          fileSize: selectedFile.size,
+          fileType: selectedFile.type
+        };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+        const result = await submitPrintJob(jobPayload);
+        setLastSubmittedJob(result.job);
+        toast.success('Print job submitted successfully!');
+        setCurrentStep(3);
+      } catch (error) {
+        toast.error(error.message || 'Failed to submit print job');
+      }
+    };
 
-  const copyLink = async () => {
-    if (lastSubmittedJob?.releaseLink) {
-      await navigator.clipboard.writeText(lastSubmittedJob.releaseLink);
-      toast.info('Release link copied to clipboard');
-    }
-  };
+    const removeFile = () => {
+      setSelectedFile(null);
+      setJobData(prev => ({ ...prev, documentName: '' }));
+      setCurrentStep(1);
+    };
 
-  return (
-    <SubmissionContainer>
-      <PageHeader>
-        <h1>Submit Print Job</h1>
-        <p>Upload your document and configure print settings securely</p>
-      </PageHeader>
+    const formatFileSize = (bytes) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
 
-      <SubmissionCard>
-        <StepIndicator active={currentStep}>
-          <div className="step">
-            <div className="step-number">1</div>
-            <div className="step-text">Upload File</div>
-          </div>
-          <div className="step">
-            <div className="step-number">2</div>
-            <div className="step-text">Configure Settings</div>
-          </div>
-          <div className="step">
-            <div className="step-number">3</div>
-            <div className="step-text">Submit Job</div>
-          </div>
-        </StepIndicator>
+    const copyLink = async () => {
+      if (lastSubmittedJob?.releaseLink) {
+        await navigator.clipboard.writeText(lastSubmittedJob.releaseLink);
+        toast.info('Release link copied to clipboard');
+      }
+    };
 
-        <form onSubmit={handleSubmit}>
-          {currentStep === 1 && (
-            <FileUploadSection {...getRootProps()} className={isDragActive ? 'drag-active' : ''}>
-              <input {...getInputProps()} />
-              <FaUpload className="upload-icon" />
-              <div className="upload-text">
-                {isDragActive ? 'Drop the file here' : 'Drag & drop a file here'}
-              </div>
-              <div className="upload-hint">
-                or click to select a file (PDF, DOC, DOCX, TXT, Images)
-              </div>
-              <button type="button" className="upload-button">
-                Choose File
-              </button>
-            </FileUploadSection>
-          )}
+    return (
+      <SubmissionContainer>
+        <PageHeader>
+          <h1>Submit Print Job</h1>
+          <p>Upload your document and configure print settings securely</p>
+        </PageHeader>
 
-          {selectedFile && (
-            <FilePreview>
-              <div className="file-icon">
-                <FaFileAlt />
-              </div>
-              <div className="file-info">
-                <div className="file-name">{selectedFile.name}</div>
-                <div className="file-size">{formatFileSize(selectedFile.size)}</div>
-              </div>
-              <button type="button" className="remove-file" onClick={removeFile}>
-                <FaTimes />
-              </button>
-            </FilePreview>
-          )}
+        <SubmissionCard>
+          <StepIndicator active={currentStep}>
+            <div className="step">
+              <div className="step-number">1</div>
+              <div className="step-text">Upload File</div>
+            </div>
+            <div className="step">
+              <div className="step-number">2</div>
+              <div className="step-text">Configure Settings</div>
+            </div>
+            <div className="step">
+              <div className="step-number">3</div>
+              <div className="step-text">Submit Job</div>
+            </div>
+          </StepIndicator>
 
-          {currentStep >= 2 && currentStep !== 3 && (
-            <>
-              <FormSection>
-                <div className="section-title">
-                  <FaCog />
-                  Print Settings
+          <form onSubmit={handleSubmit}>
+            {currentStep === 1 && (
+              <FileUploadSection {...getRootProps()} className={isDragActive ? 'drag-active' : ''}>
+                <input {...getInputProps()} />
+                <FaUpload className="upload-icon" />
+                <div className="upload-text">
+                  {isDragActive ? 'Drop the file here' : 'Drag & drop a file here'}
                 </div>
-                <FormGrid>
-                  <FormGroup>
-                    <label>Document Name</label>
-                    <input
-                      type="text"
-                      value={jobData.documentName}
-                      onChange={(e) => setJobData(prev => ({ ...prev, documentName: e.target.value }))}
-                      placeholder="Enter document name"
-                      required
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <label>Number of Pages</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={jobData.pages}
-                      onChange={(e) => setJobData(prev => ({ ...prev, pages: parseInt(e.target.value) }))}
-                      required
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <label>Number of Copies</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={jobData.copies}
-                      onChange={(e) => setJobData(prev => ({ ...prev, copies: parseInt(e.target.value) }))}
-                      required
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <label>Priority</label>
-                    <select
-                      value={jobData.priority}
-                      onChange={(e) => setJobData(prev => ({ ...prev, priority: e.target.value }))}
-                    >
-                      <option value="low">Low</option>
-                      <option value="normal">Normal</option>
-                      <option value="high">High</option>
-                      <option value="urgent">Urgent</option>
-                    </select>
-                  </FormGroup>
-                </FormGrid>
-              </FormSection>
-
-              <FormSection>
-                <div className="section-title">
-                  <FaPrint />
-                  Print Options
+                <div className="upload-hint">
+                  or click to select a file (PDF, DOC, DOCX, TXT, Images)
                 </div>
-                <CheckboxGroup>
-                  <div className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="color"
-                      checked={jobData.color}
-                      onChange={(e) => setJobData(prev => ({ ...prev, color: e.target.checked }))}
-                    />
-                    <label htmlFor="color">Color Printing</label>
-                  </div>
-                  <div className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="duplex"
-                      checked={jobData.duplex}
-                      onChange={(e) => setJobData(prev => ({ ...prev, duplex: e.target.checked }))}
-                    />
-                    <label htmlFor="duplex">Double-sided Printing</label>
-                  </div>
-                  <div className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="stapling"
-                      checked={jobData.stapling}
-                      onChange={(e) => setJobData(prev => ({ ...prev, stapling: e.target.checked }))}
-                    />
-                    <label htmlFor="stapling">Stapling</label>
-                  </div>
-                </CheckboxGroup>
-              </FormSection>
+                <button type="button" className="upload-button">
+                  Choose File
+                </button>
+              </FileUploadSection>
+            )}
 
-              <FormSection>
-                <div className="section-title">
-                  <FaShieldAlt />
-                  Security Features
+            {selectedFile && (
+              <FilePreview>
+                <div className="file-icon">
+                  <FaFileAlt />
                 </div>
-                <SecuritySection>
-                  <div className="security-header">
-                    <FaShieldAlt className="security-icon" />
-                    <div className="security-title">Your document will be secured with:</div>
+                <div className="file-info">
+                  <div className="file-name">{selectedFile.name}</div>
+                  <div className="file-size">{formatFileSize(selectedFile.size)}</div>
+                </div>
+                <button type="button" className="remove-file" onClick={removeFile}>
+                  <FaTimes />
+                </button>
+              </FilePreview>
+            )}
+
+            {currentStep >= 2 && currentStep !== 3 && (
+              <>
+                <FormSection>
+                  <div className="section-title">
+                    <FaCog />
+                    Print Settings
                   </div>
-                  <div className="security-features">
-                    <div className="feature">
-                      <FaCheck className="feature-icon" />
-                      <span>End-to-end encryption</span>
+                  <FormGrid>
+                    <FormGroup>
+                      <label>Document Name</label>
+                      <input
+                        type="text"
+                        value={jobData.documentName}
+                        onChange={(e) => setJobData(prev => ({ ...prev, documentName: e.target.value }))}
+                        placeholder="Enter document name"
+                        required
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <label>Number of Pages</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={jobData.pages}
+                        onChange={(e) => setJobData(prev => ({ ...prev, pages: parseInt(e.target.value) }))}
+                        required
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <label>Number of Copies</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={jobData.copies}
+                        onChange={(e) => setJobData(prev => ({ ...prev, copies: parseInt(e.target.value) }))}
+                        required
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <label>Priority</label>
+                      <select
+                        value={jobData.priority}
+                        onChange={(e) => setJobData(prev => ({ ...prev, priority: e.target.value }))}
+                      >
+                        <option value="low">Low</option>
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                      </select>
+                    </FormGroup>
+                  </FormGrid>
+                </FormSection>
+
+                <FormSection>
+                  <div className="section-title">
+                    <FaPrint />
+                    Print Options
+                  </div>
+                  <CheckboxGroup>
+                    <div className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id="color"
+                        checked={jobData.color}
+                        onChange={(e) => setJobData(prev => ({ ...prev, color: e.target.checked }))}
+                      />
+                      <label htmlFor="color">Color Printing</label>
                     </div>
-                    <div className="feature">
-                      <FaCheck className="feature-icon" />
-                      <span>Secure token authentication</span>
+                    <div className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id="duplex"
+                        checked={jobData.duplex}
+                        onChange={(e) => setJobData(prev => ({ ...prev, duplex: e.target.checked }))}
+                      />
+                      <label htmlFor="duplex">Double-sided Printing</label>
                     </div>
-                    <div className="feature">
-                      <FaCheck className="feature-icon" />
-                      <span>Hold-and-release system</span>
+                    <div className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        id="stapling"
+                        checked={jobData.stapling}
+                        onChange={(e) => setJobData(prev => ({ ...prev, stapling: e.target.checked }))}
+                      />
+                      <label htmlFor="stapling">Stapling</label>
                     </div>
-                    <div className="feature">
-                      <FaCheck className="feature-icon" />
-                      <span>Audit trail logging</span>
-                    </div>
+                  </CheckboxGroup>
+                </FormSection>
+
+                <FormSection>
+                  <div className="section-title">
+                    <FaShieldAlt />
+                    Security Features
                   </div>
-                </SecuritySection>
-              </FormSection>
+                  <SecuritySection>
+                    <div className="security-header">
+                      <FaShieldAlt className="security-icon" />
+                      <div className="security-title">Your document will be secured with:</div>
+                    </div>
+                    <div className="security-features">
+                      <div className="feature">
+                        <FaCheck className="feature-icon" />
+                        <span>End-to-end encryption</span>
+                      </div>
+                      <div className="feature">
+                        <FaCheck className="feature-icon" />
+                        <span>Secure token authentication</span>
+                      </div>
+                      <div className="feature">
+                        <FaCheck className="feature-icon" />
+                        <span>Hold-and-release system</span>
+                      </div>
+                      <div className="feature">
+                        <FaCheck className="feature-icon" />
+                        <span>Audit trail logging</span>
+                      </div>
+                    </div>
+                  </SecuritySection>
+                </FormSection>
 
-              <FormSection>
-                <div className="section-title">
-                  <FaQrcode />
-                  Release QR Code
-                </div>
-                <QRCodeSection>
-                  <div className="qr-title">Scan this QR code at any printer to release your job</div>
-                  <div className="qr-code">
-                    <QRCodeCanvas 
-                      value={`https://secureprint.company.com/release/${Date.now()}`} 
-                      size={150} 
-                    />
+                <FormSection>
+                  <div className="section-title">
+                    <FaQrcode />
+                    Release QR Code
                   </div>
-                </QRCodeSection>
-              </FormSection>
+                  <QRCodeSection>
+                    <div className="qr-title">Scan this QR code at any printer to release your job</div>
+                    <div className="qr-code">
+                      <QRCodeCanvas 
+                        value={`https://secureprint.company.com/release/${Date.now()}`} 
+                        size={150} 
+                      />
+                    </div>
+                  </QRCodeSection>
+                </FormSection>
 
-              <FormGroup>
-                <label>Additional Notes (Optional)</label>
-                <textarea
-                  value={jobData.notes}
-                  onChange={(e) => setJobData(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Add any special instructions or notes..."
-                  rows="3"
-                  style={{
-                    padding: '12px',
-                    border: '2px solid #e1e5e9',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    resize: 'vertical'
-                  }}
-                />
-              </FormGroup>
-            </>
-          )}
+                <FormGroup>
+                  <label>Additional Notes (Optional)</label>
+                  <textarea
+                    value={jobData.notes}
+                    onChange={(e) => setJobData(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Add any special instructions or notes..."
+                    rows="3"
+                    style={{
+                      padding: '12px',
+                      border: '2px solid #e1e5e9',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      resize: 'vertical'
+                    }}
+                  />
+                </FormGroup>
+              </>
+            )}
 
-          {currentStep === 3 && lastSubmittedJob && (
-            <>
-              <FormSection>
-                <div className="section-title">
-                  <FaShieldAlt />
-                  Secure Release Link
+            {currentStep === 3 && lastSubmittedJob && (
+              <>
+                <FormSection>
+                  <div className="section-title">
+                    <FaShieldAlt />
+                    Secure Release Link
+                  </div>
+                  <LinkBox>{lastSubmittedJob.releaseLink}</LinkBox>
+                  <CopyButton type="button" onClick={copyLink}>Copy Link</CopyButton>
+                </FormSection>
+                <div style={{ marginTop: 12, color: '#7f8c8d' }}>
+                  Share this link with the person at the printer to release the job. The link encodes a secure token unique to this job.
                 </div>
-                <LinkBox>{lastSubmittedJob.releaseLink}</LinkBox>
-                <CopyButton type="button" onClick={copyLink}>Copy Link</CopyButton>
-              </FormSection>
-              <div style={{ marginTop: 12, color: '#7f8c8d' }}>
-                Share this link with the person at the printer to release the job. The link encodes a secure token unique to this job.
-              </div>
-            </>
-          )}
+              </>
+            )}
 
-          <SubmitButton type="submit" disabled={loading || !selectedFile}>
-            {loading ? 'Submitting...' : (currentStep === 3 ? 'Submit Another Job' : 'Submit Print Job')}
-          </SubmitButton>
-        </form>
-      </SubmissionCard>
-    </SubmissionContainer>
-  );
+            <SubmitButton type="submit" disabled={loading || !selectedFile}>
+              {loading ? 'Submitting...' : (currentStep === 3 ? 'Submit Another Job' : 'Submit Print Job')}
+            </SubmitButton>
+          </form>
+        </SubmissionCard>
+      </SubmissionContainer>
+    );
+  } catch (err) {
+    setError(err);
+    return null;
+  }
 };
 
 export default PrintJobSubmission;
