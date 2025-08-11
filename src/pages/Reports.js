@@ -1,7 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { usePrintJob } from '../context/PrintJobContext';
-import { FaChartBar, FaChartLine, FaChartPie, FaDownload, FaCalendar } from 'react-icons/fa';
+import { 
+  FaChartBar, 
+  FaPrint, 
+  FaUsers, 
+  FaDollarSign,
+  FaCalendarAlt,
+  FaClock,
+  FaCheckCircle,
+  FaExclamationTriangle
+} from 'react-icons/fa';
 
 const ReportsContainer = styled.div`
   padding: 20px;
@@ -122,7 +131,7 @@ const Reports = () => {
         <StatCard color="#27ae60">
           <div className="stat-header">
             <div className="stat-icon">
-              <FaChartLine />
+              <FaPrint />
             </div>
           </div>
           <div className="stat-value">${stats.totalCost}</div>
@@ -132,7 +141,7 @@ const Reports = () => {
         <StatCard color="#f39c12">
           <div className="stat-header">
             <div className="stat-icon">
-              <FaChartPie />
+              <FaUsers />
             </div>
           </div>
           <div className="stat-value">{stats.completed}</div>
@@ -142,7 +151,7 @@ const Reports = () => {
         <StatCard color="#e74c3c">
           <div className="stat-header">
             <div className="stat-icon">
-              <FaCalendar />
+              <FaCalendarAlt />
             </div>
           </div>
           <div className="stat-value">24</div>
@@ -159,7 +168,7 @@ const Reports = () => {
       </ChartPlaceholder>
 
       <ChartPlaceholder>
-        <FaChartPie className="chart-icon" />
+        <FaUsers className="chart-icon" />
         <div className="chart-title">Department Usage Breakdown</div>
         <div className="chart-description">
           Print volume and cost analysis by department and user
@@ -167,7 +176,7 @@ const Reports = () => {
       </ChartPlaceholder>
 
       <ChartPlaceholder>
-        <FaChartLine className="chart-icon" />
+        <FaPrint className="chart-icon" />
         <div className="chart-title">Printer Performance Metrics</div>
         <div className="chart-description">
           Uptime, efficiency, and maintenance statistics for all printers

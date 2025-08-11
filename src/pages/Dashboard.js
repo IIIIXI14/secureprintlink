@@ -5,16 +5,15 @@ import { useAuth } from '../context/AuthContext';
 import { usePrintJob } from '../context/PrintJobContext';
 import { 
   FaPrint, 
-  FaClock, 
-  FaCheckCircle, 
-  FaTimesCircle, 
-  FaServer, 
-  FaChartLine,
-  FaPlus,
-  FaQrcode,
+  FaChartBar, 
+  FaCog, 
+  FaSignOutAlt,
+  FaUser,
+  FaServer,
   FaFileAlt,
-  FaUsers,
-  FaDollarSign
+  FaClock,
+  FaCheckCircle,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 
 const DashboardContainer = styled.div`
@@ -336,16 +335,6 @@ const Dashboard = () => {
   const onlinePrinters = printers.filter(printer => printer.status === 'online');
   const offlinePrinters = printers.filter(printer => printer.status === 'offline');
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending': return '#f39c12';
-      case 'printing': return '#3498db';
-      case 'completed': return '#27ae60';
-      case 'cancelled': return '#e74c3c';
-      default: return '#95a5a6';
-    }
-  };
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -399,7 +388,7 @@ const Dashboard = () => {
         <StatCard color="#e74c3c">
           <div className="stat-header">
             <div className="stat-icon">
-              <FaDollarSign />
+              <FaExclamationTriangle />
             </div>
             <div className="stat-trend">+15%</div>
           </div>
@@ -467,7 +456,7 @@ const Dashboard = () => {
             </div>
             <ChartPlaceholder>
               <div style={{ textAlign: 'center' }}>
-                <FaChartLine style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }} />
+                <FaChartBar style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }} />
                 <div>Print activity chart will be displayed here</div>
                 <div style={{ fontSize: '12px', marginTop: '8px' }}>
                   Shows daily/weekly/monthly print job trends
@@ -485,7 +474,7 @@ const Dashboard = () => {
             <QuickActions>
               <ActionButton onClick={() => navigate('/submit-job')}>
                 <div className="action-icon">
-                  <FaPlus />
+                  <FaPrint />
                 </div>
                 <div className="action-text">
                   <div className="action-title">Submit Print Job</div>
@@ -495,7 +484,7 @@ const Dashboard = () => {
 
               <ActionButton onClick={() => navigate('/release')}>
                 <div className="action-icon">
-                  <FaQrcode />
+                  <FaCog />
                 </div>
                 <div className="action-text">
                   <div className="action-title">Release Print Jobs</div>
@@ -515,7 +504,7 @@ const Dashboard = () => {
 
               <ActionButton onClick={() => navigate('/reports')}>
                 <div className="action-icon">
-                  <FaChartLine />
+                  <FaChartBar />
                 </div>
                 <div className="action-text">
                   <div className="action-title">View Reports</div>

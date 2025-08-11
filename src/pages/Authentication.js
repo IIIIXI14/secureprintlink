@@ -7,12 +7,16 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { 
   FaUser, 
   FaLock, 
-  FaKey, 
-  FaQrcode, 
+  FaEye, 
+  FaEyeSlash, 
+  FaSignInAlt,
+  FaUserPlus,
   FaShieldAlt,
-  FaEye,
-  FaEyeSlash,
-  FaPrint
+  FaPrint,
+  FaQrcode,
+  FaMobileAlt,
+  FaDesktop,
+  FaTabletAlt
 } from 'react-icons/fa';
 
 const AuthContainer = styled.div`
@@ -279,7 +283,7 @@ const DemoCredentials = styled.div`
 
 const Authentication = () => {
   const navigate = useNavigate();
-  const { login, loginWithPin, currentUser } = useAuth();
+  const { login, loginWithPin } = useAuth();
   const [activeTab, setActiveTab] = useState('credentials');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);

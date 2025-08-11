@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../context/AuthContext';
-import { FaUsers, FaPlus, FaEdit, FaTrash, FaShieldAlt, FaUser } from 'react-icons/fa';
+import { 
+  FaUser, 
+  FaEdit, 
+  FaTrash, 
+  FaCog,
+  FaShieldAlt,
+  FaEnvelope,
+  FaBuilding,
+  FaIdCard
+} from 'react-icons/fa';
 
 const ManagementContainer = styled.div`
   padding: 20px;

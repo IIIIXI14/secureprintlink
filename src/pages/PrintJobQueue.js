@@ -4,17 +4,15 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { usePrintJob } from '../context/PrintJobContext';
 import { 
-  FaFilter, 
-  FaSort, 
-  FaEye, 
+  FaPrint, 
   FaTrash, 
-  FaTimes, 
-  FaCheck,
+  FaEye, 
+  FaTimes,
+  FaCheckCircle,
+  FaExclamationTriangle,
   FaClock,
-  FaPrint,
-  FaFileAlt,
-  FaSearch,
-  FaDownload
+  FaUser,
+  FaFileAlt
 } from 'react-icons/fa';
 
 const QueueContainer = styled.div`
@@ -353,7 +351,7 @@ const EmptyState = styled.div`
 
 const PrintJobQueue = () => {
   const { currentUser } = useAuth();
-  const { printJobs, cancelPrintJob, deletePrintJob, loading } = usePrintJob();
+  const { printJobs, cancelPrintJob, deletePrintJob } = usePrintJob();
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filters, setFilters] = useState({
     status: 'all',
@@ -441,8 +439,8 @@ const PrintJobQueue = () => {
     switch (status) {
       case 'pending': return <FaClock />;
       case 'printing': return <FaPrint />;
-      case 'completed': return <FaCheck />;
-      case 'cancelled': return <FaTimes />;
+      case 'completed': return <FaCheckCircle />;
+      case 'cancelled': return <FaExclamationTriangle />;
       default: return <FaFileAlt />;
     }
   };

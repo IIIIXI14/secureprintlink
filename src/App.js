@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -91,10 +91,116 @@ const AppContent = () => {
 
 // Root App Component
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
     <AuthProvider>
       <PrintJobProvider>
-        <AppContent />
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route 
+                path="/login" 
+                element={
+                  !isAuthenticated ? (
+                    <Authentication onLogin={handleLogin} />
+                  ) : (
+                    <Navigate to="/dashboard" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/dashboard" 
+                element={
+                  isAuthenticated ? (
+                    <Dashboard onLogout={handleLogout} />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/print-job-submission" 
+                element={
+                  isAuthenticated ? (
+                    <PrintJobSubmission />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/print-job-queue" 
+                element={
+                  isAuthenticated ? (
+                    <PrintJobQueue />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/printer-management" 
+                element={
+                  isAuthenticated ? (
+                    <PrinterManagement />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/print-release" 
+                element={
+                  isAuthenticated ? (
+                    <PrintRelease />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/reports" 
+                element={
+                  isAuthenticated ? (
+                    <Reports />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/user-management" 
+                element={
+                  isAuthenticated ? (
+                    <UserManagement />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  isAuthenticated ? (
+                    <Settings />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route path="/" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </div>
+        </Router>
       </PrintJobProvider>
     </AuthProvider>
   );

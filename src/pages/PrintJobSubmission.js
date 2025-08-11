@@ -12,10 +12,8 @@ import {
   FaPrint, 
   FaShieldAlt, 
   FaCog,
-  FaEye,
-  FaEyeSlash,
-  FaCheck,
   FaTimes,
+  FaCheck,
   FaQrcode
 } from 'react-icons/fa';
 
@@ -361,7 +359,6 @@ const CopyButton = styled.button`
 `;
 
 const PrintJobSubmission = () => {
-  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { submitPrintJob, loading } = usePrintJob();
   const [currentStep, setCurrentStep] = useState(1);

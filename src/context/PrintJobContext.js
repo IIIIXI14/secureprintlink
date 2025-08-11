@@ -63,7 +63,7 @@ export const PrintJobProvider = ({ children }) => {
         console.error('Error loading stored print jobs:', error);
       }
     }
-  }, []);
+  }, [mockPrinters]);
 
   // Save print jobs to localStorage whenever they change
   useEffect(() => {

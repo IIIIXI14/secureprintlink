@@ -7,18 +7,9 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { 
   FaQrcode, 
   FaKey, 
-  FaPrint, 
-  FaUser, 
-  FaClock, 
-  FaCheck,
-  FaTimes,
-  FaServer,
-  FaShieldAlt,
-  FaEye,
-  FaEyeSlash
+  FaPrint
 } from 'react-icons/fa';
 import { useParams, useLocation } from 'react-router-dom';
-import { api } from '../api/client';
 
 const ReleaseContainer = styled.div`
   padding: 20px;
@@ -370,7 +361,7 @@ const EmptyState = styled.div`
 `;
 
 const PrintRelease = () => {
-  const { currentUser, loginWithPin } = useAuth();
+  const { loginWithPin } = useAuth();
   const { printJobs, releasePrintJob, printers } = usePrintJob();
   const params = useParams();
   const location = useLocation();
