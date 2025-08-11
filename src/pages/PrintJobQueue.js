@@ -12,7 +12,10 @@ import {
   FaExclamationTriangle,
   FaClock,
   FaUser,
-  FaFileAlt
+  FaFileAlt,
+  FaSearch,
+  FaSort,
+  FaDownload
 } from 'react-icons/fa';
 
 const QueueContainer = styled.div`
