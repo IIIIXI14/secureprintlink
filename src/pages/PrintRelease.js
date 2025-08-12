@@ -394,6 +394,7 @@ const PrintRelease = () => {
 
     // If we have a stored document, load and print it via an iframe
     if (job?.document?.dataUrl && !printedViaIframe) {
+      const { dataUrl, mimeType } = job.document || {};
       const iframe = document.createElement('iframe');
       iframe.style.position = 'fixed';
       iframe.style.right = '0';
@@ -401,22 +402,59 @@ const PrintRelease = () => {
       iframe.style.width = '0';
       iframe.style.height = '0';
       iframe.style.border = '0';
-      iframe.src = job.document.dataUrl;
       document.body.appendChild(iframe);
 
-      const handleLoad = () => {
+      const printIframe = () => {
         try {
           iframe.contentWindow?.focus();
           iframe.contentWindow?.print();
           setPrintedViaIframe(true);
         } catch (_) {
-          // Fallback to printing the page
           window.print();
         }
       };
 
-      // Some browsers require a small delay after load
-      iframe.onload = () => setTimeout(handleLoad, 150);
+      const isPdf = (mimeType || '').includes('pdf');
+      const isImage = (mimeType || '').startsWith('image/');
+      const isText = (mimeType || '') === 'text/plain';
+      const isUnsupportedOffice = /msword|officedocument/.test(mimeType || '');
+
+      if (isPdf) {
+        iframe.src = dataUrl;
+        iframe.onload = () => setTimeout(printIframe, 150);
+      } else if (isImage) {
+        const doc = iframe.contentWindow?.document;
+        if (doc) {
+          doc.open();
+          doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8" /><style>html,body{margin:0;padding:0;height:100%}img{display:block;max-width:100%;max-height:100%;margin:auto}</style></head><body><img src="${dataUrl}" /></body></html>`);
+          doc.close();
+          setTimeout(printIframe, 200);
+        } else {
+          window.open(dataUrl, '_blank');
+        }
+      } else if (isText) {
+        const doc = iframe.contentWindow?.document;
+        if (doc) {
+          // Decode base64 payload if present in data URL
+          let textContent = '';
+          try {
+            const base64 = dataUrl.split(',')[1] || '';
+            textContent = atob(base64);
+          } catch (_) {}
+          doc.open();
+          doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body><pre>${textContent.replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))}</pre></body></html>`);
+          doc.close();
+          setTimeout(printIframe, 200);
+        } else {
+          window.open(dataUrl, '_blank');
+        }
+      } else if (isUnsupportedOffice) {
+        toast.warning('DOC/DOCX cannot be printed directly in the browser. Please upload a PDF for direct printing.');
+        window.open(dataUrl, '_blank');
+      } else {
+        // Unknown type: just try to open in a new tab so the browser/plugin can handle it
+        window.open(dataUrl, '_blank');
+      }
 
       return () => {
         iframe.onload = null;
