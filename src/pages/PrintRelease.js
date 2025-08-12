@@ -373,6 +373,7 @@ const PrintRelease = () => {
   const [loading, setLoading] = useState(false);
   const [linkTargetJobId, setLinkTargetJobId] = useState(null);
   const [autoPrintDone, setAutoPrintDone] = useState(false);
+  const [printedViaIframe, setPrintedViaIframe] = useState(false);
 
   useEffect(() => {
     // With no backend, validate the token against local state
@@ -384,20 +385,51 @@ const PrintRelease = () => {
     if (job) setLinkTargetJobId(jobId);
   }, [params.jobId, location.search, printJobs]);
 
-  // Auto-open print dialog when auto-release has finished processing
+  // Auto-open print dialog for the actual document once auto-release is done
   useEffect(() => {
-    if (autoPrintDone) {
-      // Delay slightly to ensure DOM updates are painted before printing
-      const id = setTimeout(() => {
+    if (!autoPrintDone) return;
+
+    const jobId = params.jobId;
+    const job = printJobs.find(j => j.id === jobId);
+
+    // If we have a stored document, load and print it via an iframe
+    if (job?.document?.dataUrl && !printedViaIframe) {
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.src = job.document.dataUrl;
+      document.body.appendChild(iframe);
+
+      const handleLoad = () => {
         try {
-          window.print();
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+          setPrintedViaIframe(true);
         } catch (_) {
-          // ignore
+          // Fallback to printing the page
+          window.print();
         }
-      }, 300);
-      return () => clearTimeout(id);
+      };
+
+      // Some browsers require a small delay after load
+      iframe.onload = () => setTimeout(handleLoad, 150);
+
+      return () => {
+        iframe.onload = null;
+        document.body.removeChild(iframe);
+      };
     }
-  }, [autoPrintDone]);
+
+    // If no embedded document is available, fallback to printing the page
+    const id = setTimeout(() => {
+      try { window.print(); } catch (_) {}
+    }, 300);
+    return () => clearTimeout(id);
+  }, [autoPrintDone, printedViaIframe, params.jobId, printJobs]);
 
   // Auto-authenticate and print if valid token and jobId are present
   useEffect(() => {
@@ -421,7 +453,7 @@ const PrintRelease = () => {
       .then(() => {
         toast.success('Print job released automatically!');
         setAutoPrintDone(true);
-      })
+    })
       .catch((err) => {
         toast.error('Failed to auto-release print job: ' + (err.message || 'Unknown error'));
         setAutoPrintDone(true);

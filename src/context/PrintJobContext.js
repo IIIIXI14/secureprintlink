@@ -81,6 +81,21 @@ export const PrintJobProvider = ({ children }) => {
         : '';
       const releaseLink = `${releaseLinkBase}/release/${jobId}?token=${secureToken}`;
 
+      // If a file is present, convert to data URL so we can print it later in the browser
+      let documentDataUrl = null;
+      let documentMimeType = null;
+      let documentFileName = null;
+      if (jobData.file instanceof File) {
+        documentMimeType = jobData.file.type || 'application/octet-stream';
+        documentFileName = jobData.file.name || 'document';
+        documentDataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(jobData.file);
+        });
+      }
+
       const newJob = {
         id: jobId,
         userId: jobData.userId,
@@ -101,6 +116,10 @@ export const PrintJobProvider = ({ children }) => {
         secureToken,
         releaseLink,
         encrypted: true,
+        // Persist document so the release page can print it directly
+        document: documentDataUrl
+          ? { dataUrl: documentDataUrl, mimeType: documentMimeType, name: documentFileName }
+          : null,
       };
 
       setPrintJobs(prev => [newJob, ...prev]);
