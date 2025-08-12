@@ -384,6 +384,21 @@ const PrintRelease = () => {
     if (job) setLinkTargetJobId(jobId);
   }, [params.jobId, location.search, printJobs]);
 
+  // Auto-open print dialog when auto-release has finished processing
+  useEffect(() => {
+    if (autoPrintDone) {
+      // Delay slightly to ensure DOM updates are painted before printing
+      const id = setTimeout(() => {
+        try {
+          window.print();
+        } catch (_) {
+          // ignore
+        }
+      }, 300);
+      return () => clearTimeout(id);
+    }
+  }, [autoPrintDone]);
+
   // Auto-authenticate and print if valid token and jobId are present
   useEffect(() => {
     const jobId = params.jobId;
