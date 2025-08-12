@@ -129,6 +129,10 @@ function App() {
                 }
               />
               <Route
+                path="/release/:jobId"
+                element={<PrintRelease />}
+              />
+              <Route
                 path="/print-release"
                 element={
                   <RequireAuth>

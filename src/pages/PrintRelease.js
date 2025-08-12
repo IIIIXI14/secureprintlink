@@ -361,7 +361,7 @@ const EmptyState = styled.div`
 `;
 
 const PrintRelease = () => {
-  const { loginWithPin } = useAuth();
+  const { loginWithPin, mockUsers } = useAuth();
   const { printJobs, releasePrintJob, printers } = usePrintJob();
   const params = useParams();
   const location = useLocation();
@@ -372,6 +372,7 @@ const PrintRelease = () => {
   const [selectedPrinter, setSelectedPrinter] = useState(null);
   const [loading, setLoading] = useState(false);
   const [linkTargetJobId, setLinkTargetJobId] = useState(null);
+  const [autoPrintDone, setAutoPrintDone] = useState(false);
 
   useEffect(() => {
     // With no backend, validate the token against local state
@@ -382,6 +383,36 @@ const PrintRelease = () => {
     const job = printJobs.find(j => j.id === jobId && j.secureToken === token && j.status === 'pending');
     if (job) setLinkTargetJobId(jobId);
   }, [params.jobId, location.search, printJobs]);
+
+  // Auto-authenticate and print if valid token and jobId are present
+  useEffect(() => {
+    const jobId = params.jobId;
+    const search = new URLSearchParams(location.search);
+    const token = search.get('token');
+    if (!jobId || !token || autoPrintDone) return;
+    const job = printJobs.find(j => j.id === jobId && j.secureToken === token && j.status === 'pending');
+    if (!job) return;
+    // Find the user for this job
+    const user = mockUsers.find(u => String(u.id) === String(job.userId));
+    if (!user) return;
+    // Find the first available online printer
+    const printer = printers.find(p => p.status === 'online');
+    if (!printer) return;
+    setAuthenticatedUser(user);
+    setSelectedPrinter(printer);
+    setLoading(true);
+    // Release the job automatically
+    releasePrintJob(jobId, printer.id, user.id, token)
+      .then(() => {
+        toast.success('Print job released automatically!');
+        setAutoPrintDone(true);
+      })
+      .catch((err) => {
+        toast.error('Failed to auto-release print job: ' + (err.message || 'Unknown error'));
+        setAutoPrintDone(true);
+      })
+      .finally(() => setLoading(false));
+  }, [params.jobId, location.search, printJobs, printers, mockUsers, autoPrintDone, releasePrintJob]);
 
   const userJobs = authenticatedUser 
     ? printJobs.filter(job => job.userId === authenticatedUser.id && job.status === 'pending')
